@@ -21,7 +21,14 @@ void sm_container_split(sm_container_ptr hole, size_t size)
 	if (hole == sm_last)
 		sm_last = remainder ;
 
-  if (sm_unused_containers == 0x0){
+	if (sm_unused_containers == 0x0){
+		sm_unused_containers = remainder ;
+		remainder->next_unused = 0x0 ;
+		return ;
+	}
+
+	if( sm_unused_containers == hole){
+		remainder->next_unused = sm_unused_containers->next_unused ;
 		sm_unused_containers = remainder ;
 		return ;
 	}
@@ -34,7 +41,8 @@ void sm_container_split(sm_container_ptr hole, size_t size)
 			return ;
 		}
 	}
-	itr->next_unused = remainder ;
+	itr->next_unused = remainder ; //새로 할당된 hole
+
 }
 
 void * sm_retain_more_memory(int size)
@@ -60,8 +68,7 @@ void * smalloc(size_t size)
 	size_t min_frag = 0;
 	sm_container_ptr itr = 0x0 ;
 	for (itr = sm_unused_containers ; itr != 0x0 ; itr = itr->next_unused) {
-	//	if (itr->status == Busy)
-	//		continue ;
+
 
 		if (size == itr->dsize) {
 			// a hole of the exact size
@@ -106,24 +113,61 @@ void * smalloc(size_t size)
 
 void sfree(void * p)
 {
-	sm_container_ptr itr ;
-	sm_container_ptr target ;
+	sm_container_ptr itr ,target, prev, start, end ;
+	size_t size_sum = 0;
+	prev = 0x0;
 	for (itr = sm_first ; itr->next != 0x0 ; itr = itr->next) {
 		if (itr->data == p) {
 			itr->status = Unused ;
 			target = itr;
 			break ;
 		}
+		prev = itr ;
 	}
+	size_sum += target->dsize ;
+
 /*
 	if (sm_unused_containers == 0x0){
 		sm_unused_containers = target ;
 		return ;
 	}
 */
-	for (itr = sm_unused_containers ; itr->next_unused != 0x0 ; itr = itr->next_unused);
-	itr->next_unused = target;
+	if(prev != 0x0 && prev->status == Unused){
+		start = prev;
+		size_sum += prev->dsize ;
+	}
+	else{
+		start = target ;
+	}
 
+	end = target ;
+
+	do{
+			if(end->next->status == Unused){
+				end = end->next ;
+				size_sum += end->dsize ;
+				start-> next_unused = end->next_unused ;
+			}
+			else{
+				break ;
+			}
+	}while(end->next != 0x0);
+
+	if( end == sm_first ){
+		sm_first = start ;
+	}
+	if( end == sm_last ){
+		sm_last = start ;
+	}
+	if( end == sm_unused_containers ){
+		sm_unused_containers = start ;
+	}
+/*
+	for (itr = sm_unused_containers ; itr->next_unused != 0x0 ; itr = itr->next_unused);
+	itr->next_unused = start;
+*/
+	start-> next = end-> next ;
+	start-> dsize = size_sum ;
 }
 
 void print_sm_containers()
@@ -143,6 +187,11 @@ void print_sm_containers()
 			printf("%02x ", *s) ;
 		printf("\n") ;
 	}
+	if(sm_first != 0x0 && sm_last != 0x0 && sm_unused_containers != 0x0){
+		printf("sm_first : %p\n",sm_first->data);
+		printf("sm_last : %p\n",sm_last->data);
+		printf("sm_unused_containers : %p\n",sm_unused_containers->data);
+	}
 	printf("=======================================================\n") ;
 
 }
@@ -161,6 +210,10 @@ void print_unused_linkedlist()
 			 s < (char *) itr->data + (itr->dsize > 8 ? 8 : itr->dsize) ;
 			 s++)
 			printf("%02x ", *s) ;
+		if(itr->next_unused != 0x0)
+			printf("-> next_unused : %p",itr->next_unused->data);
+		else
+			printf("-> next_unused : NIL");
 		printf("\n") ;
 	}
 	printf("-------------------------------------------\n") ;
