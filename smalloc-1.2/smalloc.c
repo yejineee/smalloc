@@ -6,8 +6,10 @@ sm_container_ptr sm_first = 0x0 ;
 sm_container_ptr sm_last = 0x0 ;
 sm_container_ptr sm_unused_containers = 0x0 ;
 
+
 void sm_container_split(sm_container_ptr hole, size_t size)
 {
+	sm_container_ptr itr = 0x0 ;
 	sm_container_ptr remainder = hole->data + size ;
 
 	remainder->data = ((void *)remainder) + sizeof(sm_container_t) ;
@@ -18,6 +20,21 @@ void sm_container_split(sm_container_ptr hole, size_t size)
 
 	if (hole == sm_last)
 		sm_last = remainder ;
+
+  if (sm_unused_containers == 0x0){
+		sm_unused_containers = remainder ;
+		return ;
+	}
+
+	for (itr = sm_unused_containers ; itr->next_unused != 0x0 ; itr = itr->next_unused){
+		if(itr->next_unused == hole){
+			itr->next_unused = remainder ;
+			remainder->next_unused = hole->next_unused ;
+			hole->next_unused = 0x0 ;
+			return ;
+		}
+	}
+	itr->next_unused = remainder ;
 }
 
 void * sm_retain_more_memory(int size)
@@ -34,7 +51,6 @@ void * sm_retain_more_memory(int size)
 	hole->data = ((void *) hole) + sizeof(sm_container_t) ;
 	hole->dsize = n_pages * getpagesize() - sizeof(sm_container_t) ;
 	hole->status = Unused ;
-
 	return hole ;
 }
 
@@ -91,12 +107,23 @@ void * smalloc(size_t size)
 void sfree(void * p)
 {
 	sm_container_ptr itr ;
+	sm_container_ptr target ;
 	for (itr = sm_first ; itr->next != 0x0 ; itr = itr->next) {
 		if (itr->data == p) {
 			itr->status = Unused ;
+			target = itr;
 			break ;
 		}
 	}
+/*
+	if (sm_unused_containers == 0x0){
+		sm_unused_containers = target ;
+		return ;
+	}
+*/
+	for (itr = sm_unused_containers ; itr->next_unused != 0x0 ; itr = itr->next_unused);
+	itr->next_unused = target;
+
 }
 
 void print_sm_containers()
@@ -117,6 +144,26 @@ void print_sm_containers()
 		printf("\n") ;
 	}
 	printf("=======================================================\n") ;
+
+}
+void print_unused_linkedlist()
+{
+	sm_container_ptr itr ;
+	int i = 0 ;
+
+	printf("---------sm_unused_containers ----------\n") ;
+	for (itr = sm_unused_containers ; itr != 0x0 ; itr = itr->next_unused, i++) {
+		char * s ;
+		printf("%3d:%p:%s:", i, itr->data, itr->status == Unused ? "Unused" : "  Busy") ;
+		printf("%8d:", (int) itr->dsize) ;
+
+		for (s = (char *) itr->data ;
+			 s < (char *) itr->data + (itr->dsize > 8 ? 8 : itr->dsize) ;
+			 s++)
+			printf("%02x ", *s) ;
+		printf("\n") ;
+	}
+	printf("-------------------------------------------\n") ;
 
 }
 
