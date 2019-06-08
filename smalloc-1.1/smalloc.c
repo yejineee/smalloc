@@ -87,50 +87,6 @@ void * smalloc(size_t size)
 	hole->status = Busy ;
 	return hole->data ;
 }
-/*
-void * smalloc(size_t size)
-{
-	sm_container_ptr hole = 0x0 ;
-
-	sm_container_ptr itr = 0x0 ;
-	for (itr = sm_first ; itr != 0x0 ; itr = itr->next) {
-		if (itr->status == Busy)
-			continue ;
-
-		if (size == itr->dsize) {
-			// a hole of the exact size
-			itr->status = Busy ;
-			return itr->data ;
-		}
-		else if (size + sizeof(sm_container_t) < itr->dsize) {
-			// a hole large enough to split
-			hole = itr ;
-			break ;
-		}
-	}
-	if (hole == 0x0) {
-		hole = sm_retain_more_memory(size) ;
-
-		if (hole == 0x0)
-			return 0x0 ;
-
-		if (sm_first == 0x0) {
-			sm_first = hole ;
-			sm_last = hole ;
-			hole->next = 0x0 ;
-		}
-		else {
-			sm_last->next = hole ;
-			sm_last = hole ;
-			hole->next = 0x0 ;
-		}
-	}
-	sm_container_split(hole, size) ;
-	hole->dsize = size ;
-	hole->status = Busy ;
-	return hole->data ;
-}
-*/
 
 void sfree(void * p)
 {
