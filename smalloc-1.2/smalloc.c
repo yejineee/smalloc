@@ -141,9 +141,6 @@ void sfree(void * p)
 		start-> next_unused = end->next_unused ;
 	}
 	
-	if( end == sm_first ){
-		sm_first = start ;
-	}
 	if( end == sm_last ){
 		sm_last = start ;
 	}
@@ -196,3 +193,4 @@ void print_sm_uses()
 	fprintf(stderr, "the amount of memory retained by smalloc but not currently allocated :%d\n",unused_mem) ;
 
 }
+
