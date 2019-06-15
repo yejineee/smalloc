@@ -130,7 +130,7 @@ void print_sm_uses()
 	int i = 0 ;
 	for (itr = sm_first ; itr != 0x0 ; itr = itr->next, i++) {
 		total_mem += (int) itr->dsize ;
-
+		total_mem += (int)sizeof(sm_container_t);
 		if(itr->status == Unused){
 			unused_mem += (int) itr->dsize ;
 		}
@@ -138,9 +138,9 @@ void print_sm_uses()
 			busy_mem += (int) itr->dsize ;
 		}
 	}
-
 	fprintf(stderr, "the amount of memory retained by smalloc so far :%d\n",total_mem) ;
 	fprintf(stderr, "the amount of memory allocated by smalloc at this moment :%d\n",busy_mem) ;
 	fprintf(stderr, "the amount of memory retained by smalloc but not currently allocated :%d\n",unused_mem) ;
 
 }
+
