@@ -210,28 +210,4 @@ void print_sm_uses()
 	fprintf(stderr, "the amount of memory retained by smalloc but not currently allocated :%d\n",unused_mem) ;
 
 }
-void print_unused_linkedlist()
-{
-	sm_container_ptr itr ;
-	int i = 0 ;
-
-	printf("---------sm_unused_containers ----------\n") ;
-	for (itr = sm_unused_containers ; itr != 0x0 ; itr = itr->next_unused, i++) {
-		char * s ;
-		printf("%3d:%p:%s:", i, itr->data, itr->status == Unused ? "Unused" : "  Busy") ;
-		printf("%8d:", (int) itr->dsize) ;
-
-		for (s = (char *) itr->data ;
-			 s < (char *) itr->data + (itr->dsize > 8 ? 8 : itr->dsize) ;
-			 s++)
-			printf("%02x ", *s) ;
-		if(itr->next_unused != 0x0)
-			printf("-> next_unused : %p",itr->next_unused->data);
-		else
-			printf("-> next_unused : NIL");
-		printf("\n") ;
-	}
-	printf("-------------------------------------------\n") ;
-
-}
 
