@@ -200,7 +200,7 @@ void print_sm_uses()
 	int i = 0 ;
 	for (itr = sm_first ; itr != 0x0 ; itr = itr->next, i++) {
 		total_mem += (int) itr->dsize ;
-
+		total_mem += (int)sizeof(sm_container_t);
 		if(itr->status == Unused){
 			unused_mem += (int) itr->dsize ;
 		}
