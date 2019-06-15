@@ -130,14 +130,14 @@ void sfree(void * p)
 
 	if(prev != 0x0 && prev->status == Unused){
 		start = prev;
-		size_sum += prev->dsize ;
+		size_sum += prev->dsize + sizeof(sm_container_t) ;
 	}
 
 	end = target ;
 
 	if(end->next->status == Unused){
 		end = end->next ;
-		size_sum += end->dsize ;
+		size_sum += end->dsize + sizeof(sm_container_t) ;
 		start-> next_unused = end->next_unused ;
 	}
 	
@@ -182,8 +182,8 @@ void print_sm_uses()
 	sm_container_ptr itr ;
 	int i = 0 ;
 	for (itr = sm_first ; itr != 0x0 ; itr = itr->next, i++) {
-		total_mem += (int) itr->dsize ;
-		total_mem += (int)sizeof(sm_container_t);
+//		total_mem += (int) itr->dsize ;
+		total_mem += (int) itr->dsize + (int)sizeof(sm_container_t);
 		if(itr->status == Unused){
 			unused_mem += (int) itr->dsize ;
 		}
