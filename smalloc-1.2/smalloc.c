@@ -127,13 +127,11 @@ void sfree(void * p)
 	size_sum += target->dsize ;
 		
 	start = target ; 	
+
 	if(prev != 0x0 && prev->status == Unused){
 		start = prev;
 		size_sum += prev->dsize ;
 	}
-	/*else{
-		start = target ;
-	}*/
 
 	end = target ;
 
