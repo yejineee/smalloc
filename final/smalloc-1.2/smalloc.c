@@ -142,21 +142,21 @@ void sfree(void * p)
 	}
 	if(end == start){
 		 for (itr = sm_unused_containers ; itr->next_unused != 0x0 ; itr = itr->next_unused){
-                if(itr < start && start < itr->next_unused){
-                        start->next_unused = itr->next_unused ;
-                        itr->next_unused = start ;
-                        break;
-                }
-        }
-        if(itr->next_unused == 0x0){
-                if(itr < start){
-                        itr->next_unused = start ;
-                }
-                else{
-                        start->next_unused = sm_unused_containers ;
-                        sm_unused_containers = start ;
-                }
-        }
+			if(itr < start && start < itr->next_unused){
+				start->next_unused = itr->next_unused ;
+				itr->next_unused = start ;
+				break;
+			}
+		}
+		if(itr->next_unused == 0x0){
+			if(itr < start){
+				itr->next_unused = start ;
+			}
+			else{
+				start->next_unused = sm_unused_containers ;
+				sm_unused_containers = start ;
+			}
+		}
 	}	
 	if( end == sm_last ){
 		sm_last = start ;
