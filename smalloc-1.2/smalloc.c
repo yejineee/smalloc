@@ -140,7 +140,24 @@ void sfree(void * p)
 		size_sum += end->dsize + sizeof(sm_container_t) ;
 		start-> next_unused = end->next_unused ;
 	}
-	
+	if(end == start){
+		 for (itr = sm_unused_containers ; itr->next_unused != 0x0 ; itr = itr->next_unused){
+                if(itr->data < start->data && start->data < itr->next_unused->data){
+                        start->next_unused = itr->next_unused ;
+                        itr->next_unused = start ;
+                        break;
+                }
+        }
+        if(itr->next_unused == 0x0){
+                if(itr->data < start->data){
+                        itr->next_unused = start ;
+                }
+                else{
+                        start->next_unused = sm_unused_containers ;
+                        sm_unused_containers = start ;
+                }
+        }
+	}	
 	if( end == sm_last ){
 		sm_last = start ;
 	}
@@ -193,4 +210,3 @@ void print_sm_uses()
 	fprintf(stderr, "the amount of memory retained by smalloc but not currently allocated :%d\n",unused_mem) ;
 
 }
-
