@@ -136,17 +136,12 @@ void sfree(void * p)
 
 	end = target ;
 
-	do{
-			if(end->next->status == Unused){
-				end = end->next ;
-				size_sum += end->dsize ;
-				start-> next_unused = end->next_unused ;
-			}
-			else{
-				break ;
-			}
-	}while(end->next != 0x0);
-
+	if(end->next->status == Unused){
+		end = end->next ;
+		size_sum += end->dsize ;
+		start-> next_unused = end->next_unused ;
+	}
+	
 	if( end == sm_first ){
 		sm_first = start ;
 	}
