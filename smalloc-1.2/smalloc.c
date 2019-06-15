@@ -187,12 +187,7 @@ void print_sm_containers()
 			printf("%02x ", *s) ;
 		printf("\n") ;
 	}
-	if(sm_first != 0x0 && sm_last != 0x0 && sm_unused_containers != 0x0){
-		printf("sm_first : %p\n",sm_first->data);
-		printf("sm_last : %p\n",sm_last->data);
-		printf("sm_unused_containers : %p\n",sm_unused_containers->data);
-	}
-	printf("=======================================================\n") ;
+printf("=======================================================\n") ;
 
 }
 void print_sm_uses()
